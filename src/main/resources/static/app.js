@@ -2,6 +2,45 @@
    SkyBook REST Client — Application Logic
    ============================================================ */
 
+// ---- Task Modal ----
+function toggleTaskModal() {
+  document.getElementById('taskModal').classList.toggle('open');
+}
+function closeTaskModal(e) {
+  if (e.target === e.currentTarget) toggleTaskModal();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('taskModal').classList.remove('open');
+    document.getElementById('recruiterModal').classList.remove('open');
+  }
+});
+
+// ---- Recruiter Modal (password-protected) ----
+function openRecruiterModal() {
+  document.getElementById('recruiterModal').classList.add('open');
+  const gate = document.getElementById('recruiterGate');
+  if (gate.style.display !== 'none') {
+    setTimeout(() => document.getElementById('recruiterPassword').focus(), 100);
+  }
+}
+function closeRecruiterModal(e) {
+  if (e.target === e.currentTarget) document.getElementById('recruiterModal').classList.remove('open');
+}
+function checkRecruiterPassword() {
+  const input = document.getElementById('recruiterPassword');
+  const error = document.getElementById('gateError');
+  if (input.value === 'rekrutacjaJava') {
+    document.getElementById('recruiterGate').style.display = 'none';
+    document.getElementById('recruiterContent').style.display = 'block';
+    error.textContent = '';
+  } else {
+    error.textContent = '\u274c Nieprawid\u0142owe has\u0142o';
+    input.value = '';
+    input.focus();
+  }
+}
+
 // ---- Pre-filled endpoint definitions ----
 const ENDPOINTS = {
   // --- Flights ---

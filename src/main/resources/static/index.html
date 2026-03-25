@@ -10,6 +10,8 @@
   <header class="topbar">
     <div class="topbar-brand">✈ SkyBook API — REST Client</div>
     <div class="topbar-links">
+      <button class="topbar-btn" onclick="toggleTaskModal()" title="Opis zadania">📋 Zadanie</button>
+      <button class="topbar-btn" onclick="openRecruiterModal()" title="Arkusz rekrutera">🔒 Rekruter</button>
       <a href="/swagger-ui.html" target="_blank" title="Swagger UI">📄 Swagger</a>
     </div>
   </header>
@@ -53,46 +55,47 @@
 
     <!-- Main content -->
     <main class="content">
-      <!-- Request panel -->
-      <section class="request-panel">
-        <div class="request-bar">
-          <select id="methodSelect" class="method-select">
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="PATCH">PATCH</option>
-            <option value="DELETE">DELETE</option>
-          </select>
-          <input type="text" id="urlInput" class="url-input" placeholder="/api/v1/..." />
-          <button id="sendBtn" class="send-btn" onclick="sendRequest()">Send ▶</button>
-        </div>
+      <!-- Request bar (full width) -->
+      <div class="request-bar">
+        <select id="methodSelect" class="method-select">
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        <input type="text" id="urlInput" class="url-input" placeholder="/api/v1/..." />
+        <button id="sendBtn" class="send-btn" onclick="sendRequest()">Send ▶</button>
+      </div>
 
-        <div class="headers-section">
-          <label>Headers:</label>
-          <div class="header-row">
-            <span class="header-key">Content-Type:</span>
-            <span class="header-value">application/json</span>
-          </div>
+      <div class="headers-section">
+        <div class="header-row">
+          <span class="header-key">Content-Type:</span>
+          <span class="header-value">application/json</span>
         </div>
+      </div>
 
-        <div class="body-section" id="bodySection">
-          <label>Body:</label>
+      <!-- Split panels: Body | Response -->
+      <div class="panels">
+        <!-- Body panel (left) -->
+        <section class="body-panel" id="bodySection">
+          <div class="panel-label">Request Body</div>
           <textarea id="bodyEditor" class="body-editor" spellcheck="false" placeholder="{ }"></textarea>
           <div class="editor-actions">
             <button class="format-btn" onclick="formatBody()" title="Format JSON">🔧 Format</button>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Response panel -->
-      <section class="response-panel" id="responsePanel">
-        <div class="response-header">
-          <span class="response-label">Response:</span>
-          <span id="responseStatus" class="response-status"></span>
-          <span id="responseTime" class="response-time"></span>
-        </div>
-        <pre id="responseBody" class="response-body"><span class="placeholder">Click "Send" to see response...</span></pre>
-      </section>
+        <!-- Response panel (right) -->
+        <section class="response-panel" id="responsePanel">
+          <div class="response-header">
+            <span class="panel-label">Response</span>
+            <span id="responseStatus" class="response-status"></span>
+            <span id="responseTime" class="response-time"></span>
+          </div>
+          <pre id="responseBody" class="response-body"><span class="placeholder">Click "Send" to see response...</span></pre>
+        </section>
+      </div>
     </main>
   </div>
 
@@ -104,6 +107,368 @@
     </div>
     <button class="history-clear" onclick="clearHistory()" title="Clear history">✕</button>
   </footer>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="taskModal" onclick="closeTaskModal(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>✈ SkyBook API — Zadanie testowe QA</h2>
+        <button class="modal-close" onclick="toggleTaskModal()" title="Zamknij">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <h3>Kontekst</h3>
+        <p><strong>SkyBook</strong> to REST API systemu rezerwacji lotów i zarządzania biletami lotniczymi. API obsługuje:</p>
+        <ul>
+          <li>Zarządzanie lotami (CRUD)</li>
+          <li>Rezerwacje z pasażerami, miejscami i płatnościami</li>
+          <li>Baza lotnisk</li>
+          <li>Przeliczanie walut</li>
+        </ul>
+
+        <h3>Twoje zadanie <span class="badge">30 min</span></h3>
+        <ol>
+          <li>Zapoznaj się z API korzystając z dostępnych narzędzi</li>
+          <li>Przetestuj API pod kątem poprawności działania — szczególnie pod kątem poniższych reguł biznesowych</li>
+          <li>Zaraportuj znalezione błędy</li>
+        </ol>
+
+        <div class="tip-box">
+          💡 <strong>Wskazówka:</strong> REST Client ma 12 gotowych requestów w panelu bocznym — możesz je wysyłać od razu lub modyfikować. Nie musisz pisać JSON od zera.
+        </div>
+
+        <h3>Endpointy API</h3>
+
+        <h4>Flights (Loty)</h4>
+        <table>
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td><code>/api/v1/flights?page=0&amp;size=10</code></td><td>Lista lotów (paginowana)</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/v1/flights/{id}</code></td><td>Szczegóły lotu</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/v1/flights</code></td><td>Utwórz lot</td></tr>
+            <tr><td><code>PUT</code></td><td><code>/api/v1/flights/{id}</code></td><td>Zaktualizuj lot</td></tr>
+            <tr><td><code>DELETE</code></td><td><code>/api/v1/flights/{id}</code></td><td>Usuń lot</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/v1/flights/search?origin=...&amp;destination=...&amp;date=...</code></td><td>Wyszukaj loty</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Bookings (Rezerwacje)</h4>
+        <table>
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td><code>/api/v1/bookings?page=0&amp;size=10</code></td><td>Lista rezerwacji</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/v1/bookings/{id}</code></td><td>Szczegóły rezerwacji</td></tr>
+            <tr><td><code>POST</code></td><td><code>/api/v1/bookings</code></td><td>Utwórz rezerwację</td></tr>
+            <tr><td><code>PATCH</code></td><td><code>/api/v1/bookings/{id}/status</code></td><td>Zmień status rezerwacji</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Airports (Lotniska) — tylko odczyt</h4>
+        <table>
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td><code>/api/v1/airports</code></td><td>Lista lotnisk</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/v1/airports/{code}</code></td><td>Lotnisko po kodzie IATA</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Pricing (Cennik)</h4>
+        <table>
+          <thead><tr><th>Method</th><th>Endpoint</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET</code></td><td><code>/api/v1/pricing/convert?amount=100&amp;from=EUR&amp;to=USD</code></td><td>Przelicz walutę</td></tr>
+            <tr><td><code>GET</code></td><td><code>/api/v1/pricing/rates</code></td><td>Aktualne kursy walut</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Reguły biznesowe</h3>
+        <table class="rules-table">
+          <thead><tr><th>#</th><th>Reguła</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td>BR-01</td><td>Numer lotu</td><td>Wymagany, unikalny, format: 2–3 litery + <code>-</code> + 1–5 cyfr (np. <code>SB-1234</code>)</td></tr>
+            <tr><td>BR-02</td><td>Segmenty lotu</td><td>Min. 1 wymagany; lot bezpośredni = 1 segment, z przesiadką = 2+</td></tr>
+            <tr><td>BR-03</td><td>Segment: departure/arrival</td><td><code>airportCode</code> – IATA 3 litery; <code>dateTime</code> – ISO 8601; arrival po departure; <code>durationMinutes</code> &gt; 0</td></tr>
+            <tr><td>BR-04</td><td>Segment: aircraft</td><td>Obiekt wymagany; <code>model</code> 1–100 znaków; <code>seatConfiguration</code> – wartości ≥ 0</td></tr>
+            <tr><td>BR-05</td><td>Cena bazowa i waluta</td><td><code>baseFare</code> ≥ 0.00, max 2 dec; <code>currency</code> ∈ {USD, EUR, GBP, PLN}</td></tr>
+            <tr><td>BR-06</td><td>Podatki</td><td>Opcjonalne; <code>code</code> 2 wielkie litery, unikalny; <code>amount</code> ≥ 0.00</td></tr>
+            <tr><td>BR-07</td><td>Opłaty</td><td>Opcjonalne; <code>feeCode</code> unikalny; <code>amount</code> ≥ 0.00; max 10 opłat</td></tr>
+            <tr><td>BR-08</td><td>Suma ceny</td><td>Auto: <code>baseFare + Σtaxes + Σfees − discount</code>; wartość musi być poprawna</td></tr>
+            <tr><td>BR-09</td><td>Rabat</td><td>Opcjonalny; <code>percentage</code> 0–100; <code>validUntil</code> nie w przeszłości</td></tr>
+            <tr><td>BR-10</td><td>Dostępne miejsca</td><td>Zmniejszane przy rezerwacji, przywracane przy anulowaniu</td></tr>
+            <tr><td>BR-11</td><td>Pasażerowie</td><td>Min. 1, max 9 na rezerwację</td></tr>
+            <tr><td>BR-12</td><td>Dane pasażera</td><td><code>firstName</code>/<code>lastName</code> 1–100 zn; <code>dateOfBirth</code> ISO; <code>email</code> poprawny; <code>phone</code> międzynarodowy</td></tr>
+            <tr><td>BR-13</td><td>Przydział miejsca</td><td><code>seatNumber</code> unikalny w locie; <code>class</code> ∈ {ECONOMY, BUSINESS, FIRST}; <code>type</code> ∈ {WINDOW, MIDDLE, AISLE}</td></tr>
+            <tr><td>BR-14</td><td>Płatność</td><td>Wymagana; <code>method</code> ∈ {CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER, BLIK}; <code>cardDetails</code> wymagane dla kart</td></tr>
+            <tr><td>BR-15</td><td>Status rezerwacji</td><td>PENDING → CONFIRMED, PENDING → CANCELLED, CONFIRMED → CANCELLED; brak cofania</td></tr>
+            <tr><td>BR-16</td><td>Usunięcie lotu</td><td>Nie można usunąć lotu z rezerwacjami</td></tr>
+            <tr><td>BR-17</td><td>Przeliczanie walut</td><td>Poprawne przeliczanie między USD, EUR, GBP, PLN</td></tr>
+            <tr><td>BR-18</td><td>Paginacja</td><td>Domyślnie: page=0, size=10, max size=100</td></tr>
+            <tr><td>BR-19</td><td>Wyszukiwanie lotów</td><td>Case-insensitive, partial match</td></tr>
+            <tr><td>BR-20</td><td>HTTP Status Codes</td><td>POST → 201, DELETE → 204, Not Found → 404, Validation → 400</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Oczekiwany format raportu błędu</h3>
+        <table>
+          <thead><tr><th>Pole</th><th>Opis</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Tytuł</strong></td><td>Krótki, jednoznaczny opis problemu</td></tr>
+            <tr><td><strong>Kroki reprodukcji</strong></td><td>Numerowane kroki (endpoint, metoda, body)</td></tr>
+            <tr><td><strong>Oczekiwany rezultat</strong></td><td>Co powinno się stać wg reguł biznesowych</td></tr>
+            <tr><td><strong>Faktyczny rezultat</strong></td><td>Co faktycznie się dzieje</td></tr>
+            <tr><td><strong>Severity</strong></td><td>Critical / Major / Minor</td></tr>
+          </tbody>
+        </table>
+
+        <div class="example-box">
+          <strong>Przykład raportu:</strong><br><br>
+          <strong>Tytuł:</strong> GET /api/v1/flights zwraca 500 zamiast pustej listy gdy brak lotów<br><br>
+          <strong>Kroki reprodukcji:</strong><br>
+          1. Usuń wszystkie loty<br>
+          2. Wyślij <code>GET /api/v1/flights</code><br><br>
+          <strong>Oczekiwany rezultat:</strong> 200 OK z pustą listą <code>{ "content": [], "totalElements": 0 }</code><br><br>
+          <strong>Faktyczny rezultat:</strong> 500 Internal Server Error<br><br>
+          <strong>Severity:</strong> Major
+        </div>
+
+        <h3>Dane testowe</h3>
+        <p>API posiada wstępnie załadowane dane:</p>
+        <ul>
+          <li><strong>6 lotnisk:</strong> WAW, FRA, LHR, JFK, CDG, BCN</li>
+          <li><strong>5 lotów:</strong> SB-1234, SB-5678, SB-9012, SB-3456, SB-7890</li>
+          <li><strong>3 rezerwacje</strong> (statusy: CONFIRMED, PENDING, CANCELLED)</li>
+          <li><strong>Waluty:</strong> EUR (bazowa), USD, GBP, PLN</li>
+        </ul>
+        <div class="tip-box">
+          ℹ <strong>Uwaga:</strong> Baza danych jest resetowana przy każdym restarcie API.
+        </div>
+
+        <p class="good-luck">Powodzenia! 🚀</p>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Recruiter Modal -->
+  <div class="modal-overlay" id="recruiterModal" onclick="closeRecruiterModal(event)">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2>🔒 Arkusz rekrutera (POUFNE)</h2>
+        <button class="modal-close" onclick="document.getElementById('recruiterModal').classList.remove('open')" title="Zamknij">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Password gate -->
+        <div id="recruiterGate" class="password-gate">
+          <div class="gate-icon">🔐</div>
+          <p>Ten panel jest przeznaczony <strong>wyłącznie dla rekrutera</strong>.</p>
+          <p>Podaj hasło dostępu:</p>
+          <div class="gate-input-row">
+            <input type="password" id="recruiterPassword" class="gate-input" placeholder="Hasło..." onkeydown="if(event.key==='Enter')checkRecruiterPassword()" />
+            <button class="gate-btn" onclick="checkRecruiterPassword()">Odblokuj</button>
+          </div>
+          <p id="gateError" class="gate-error"></p>
+        </div>
+
+        <!-- Protected content -->
+        <div id="recruiterContent" style="display:none;">
+
+          <div class="tip-box" style="border-color: rgba(243,139,168,0.4); background: rgba(243,139,168,0.06);">
+            ⚠ <strong>Dokument poufny</strong> — NIE pokazuj kandydatowi. Zawiera listę bugów, kryteria oceny i wskazówki.
+          </div>
+
+          <h3>1. Przygotowanie przed rozmową</h3>
+          <table>
+            <thead><tr><th>Krok</th><th>Opis</th></tr></thead>
+            <tbody>
+              <tr><td><strong>5 min przed</strong></td><td>Uruchom aplikację / zrób "ping" na API</td></tr>
+              <tr><td><strong>Restart DB</strong></td><td>Zrestartuj usługę, aby zresetować dane do stanu początkowego</td></tr>
+              <tr><td><strong>Materiały</strong></td><td>Kandydat wyświetla zakładkę „📋 Zadanie" na stronie głównej</td></tr>
+              <tr><td><strong>Narzędzia</strong></td><td>Kandydat potrzebuje tylko przeglądarki — REST Client jest wbudowany</td></tr>
+            </tbody>
+          </table>
+
+          <h3>2. Przebieg zadania (30 min)</h3>
+          <table>
+            <thead><tr><th>Czas</th><th>Faza</th><th>Notatki</th></tr></thead>
+            <tbody>
+              <tr><td>0–2 min</td><td><strong>Wprowadzenie</strong></td><td>„SkyBook to API rezerwacji lotów. Na stronie głównej masz REST Client z gotowymi requestami. Jest też Swagger. Kliknij „Zadanie" — tam są reguły biznesowe. Przetestuj i zaraportuj bugi."</td></tr>
+              <tr><td>2–25 min</td><td><strong>Testowanie</strong></td><td>Obserwuj podejście. Czy ma strategię? Odpowiadaj na pytania o kontekst, ale nie naprowadzaj na bugi.</td></tr>
+              <tr><td>25–30 min</td><td><strong>Podsumowanie</strong></td><td>Kandydat prezentuje bugi. Notuj jakość raportów.</td></tr>
+            </tbody>
+          </table>
+
+          <h4>Pytania follow-up (opcjonalne):</h4>
+          <ol>
+            <li>„Jakie testy zautomatyzowałbyś w pierwszej kolejności?"</li>
+            <li>„Jak zorganizowałbyś regression test suite dla tego API?"</li>
+            <li>„Jakie testy niefunkcjonalne byś dodał?" (performance, security)</li>
+            <li>„Jak podszedłbyś do testowania tego API w CI/CD pipeline?"</li>
+            <li>„Jak przetestowałbyś poprawność kalkulacji cenowych?"</li>
+          </ol>
+
+          <h3>3. Lista osadzonych bugów (12)</h3>
+
+          <h4>🔴 Krytyczne (4)</h4>
+          <table class="bugs-table">
+            <thead><tr><th>ID</th><th>Reguła</th><th>Bug</th><th>Reprodukcja</th></tr></thead>
+            <tbody>
+              <tr><td class="bug-id">BUG-01</td><td>BR-13</td><td><strong>Duplikaty miejsc</strong> — ten sam seatNumber przypisany wielu pasażerom</td><td><code>POST /api/v1/bookings</code> — dwóch pasażerów z tym samym seatNumber "12A"</td></tr>
+              <tr><td class="bug-id">BUG-02</td><td>BR-16</td><td><strong>DELETE lotu z rezerwacjami</strong> — lot z bookings może być usunięty</td><td><code>DELETE /api/v1/flights/2</code> → 204, ale booking z flightId:2 osierocony</td></tr>
+              <tr><td class="bug-id">BUG-03</td><td>BR-10</td><td><strong>Cancel nie zwalnia miejsc</strong> — anulowanie nie przywraca availableSeats</td><td>Sprawdź availableSeats przed/po <code>PATCH .../status</code> → CANCELLED</td></tr>
+              <tr><td class="bug-id">BUG-04</td><td>BR-11</td><td><strong>Pusta tablica passengers[]</strong> — akceptowana bez walidacji</td><td><code>POST /api/v1/bookings</code> z <code>"passengers": []</code> → 200</td></tr>
+            </tbody>
+          </table>
+
+          <h4>🟠 Średnie (5)</h4>
+          <table class="bugs-table">
+            <thead><tr><th>ID</th><th>Reguła</th><th>Bug</th><th>Reprodukcja</th></tr></thead>
+            <tbody>
+              <tr><td class="bug-id">BUG-05</td><td>BR-06</td><td><strong>Ujemna kwota podatku</strong> — taxes[].amount &lt; 0 akceptowany</td><td><code>POST /api/v1/flights</code> z <code>"amount": -50</code> w taxes</td></tr>
+              <tr><td class="bug-id">BUG-06</td><td>BR-09</td><td><strong>Discount &gt; 100%</strong> — percentage poza 0–100</td><td><code>POST /api/v1/flights</code> z <code>"percentage": 200</code></td></tr>
+              <tr><td class="bug-id">BUG-07</td><td>BR-17</td><td><strong>EUR→GBP kurs = 1.0</strong> — błędny przelicznik</td><td><code>GET .../convert?amount=100&amp;from=EUR&amp;to=GBP</code> → 100.00 zamiast ~86.14</td></tr>
+              <tr><td class="bug-id">BUG-08</td><td>BR-08</td><td><strong>totalAmount ignoruje fees</strong> — brakuje opłat w kalkulacji</td><td>Porównaj ręcznie: baseFare + taxes + fees − discount vs. zwrócone totalAmount</td></tr>
+              <tr><td class="bug-id">BUG-09</td><td>BR-20</td><td><strong>POST → 200 zamiast 201</strong> — oba endpointy POST</td><td><code>POST /api/v1/flights</code> lub <code>/bookings</code> → HTTP 200</td></tr>
+            </tbody>
+          </table>
+
+          <h4>🟡 Niskie (3)</h4>
+          <table class="bugs-table">
+            <thead><tr><th>ID</th><th>Reguła</th><th>Bug</th><th>Reprodukcja</th></tr></thead>
+            <tbody>
+              <tr><td class="bug-id">BUG-10</td><td>BR-19</td><td><strong>Case-sensitive search</strong> — wyszukiwanie rozróżnia wielkość liter</td><td><code>GET .../search?destination=frankfurt</code> → 0 wyników vs <code>Frankfurt</code> → wyniki</td></tr>
+              <tr><td class="bug-id">BUG-11</td><td>BR-20</td><td><strong>Puste body {} → 500</strong> — Internal Server Error</td><td><code>POST /api/v1/bookings</code> z body <code>{}</code></td></tr>
+              <tr><td class="bug-id">BUG-12</td><td>BR-14</td><td><strong>null payment → 500</strong> — crash zamiast walidacji</td><td><code>POST /api/v1/bookings</code> z <code>"payment": null</code></td></tr>
+            </tbody>
+          </table>
+
+          <h3>4. Mapa głębokości testowania</h3>
+          <table>
+            <thead><tr><th>Poziom</th><th>Opis</th><th>Bugi</th><th>Typowe znalezienie</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Root</strong></td><td>Status codes, edge cases</td><td>BUG-09, BUG-11</td><td>Łatwe — widać od razu</td></tr>
+              <tr><td><strong>Level 1</strong></td><td>Zagnieżdżone obiekty</td><td>BUG-04, BUG-10, BUG-12</td><td>Wymaga świadomego testowania</td></tr>
+              <tr><td><strong>Level 2</strong></td><td>Obiekty w obiektach</td><td>BUG-01, BUG-05, BUG-06, BUG-08</td><td>Wymaga analizy payload</td></tr>
+              <tr><td><strong>Cross-entity</strong></td><td>Relacje lot ↔ booking</td><td>BUG-02, BUG-03</td><td>Wymaga testowania lifecycle</td></tr>
+              <tr><td><strong>External</strong></td><td>Przeliczanie walut</td><td>BUG-07</td><td>Wymaga weryfikacji matematycznej</td></tr>
+            </tbody>
+          </table>
+
+          <h3>5. Kryteria oceny</h3>
+
+          <h4>5.1 Podejście do testowania (0–10 pkt)</h4>
+          <table>
+            <tbody>
+              <tr><td><strong>0–3</strong></td><td>Losowe klikanie, brak struktury</td></tr>
+              <tr><td><strong>4–6</strong></td><td>Happy path + negatywne na poziomie root</td></tr>
+              <tr><td><strong>7–8</strong></td><td>Boundary values, equivalence partitioning, nested obiekty</td></tr>
+              <tr><td><strong>9–10</strong></td><td>CRUD lifecycle, cross-entity, paginacja, deep nested + currency</td></tr>
+            </tbody>
+          </table>
+
+          <h4>5.2 Znalezione bugi (0–10 pkt)</h4>
+          <table>
+            <tbody>
+              <tr><td><strong>0–2</strong></td><td>0–2 bugi, przypadkowe</td></tr>
+              <tr><td><strong>3–4</strong></td><td>3–4 bugi, root/Level 1</td></tr>
+              <tr><td><strong>5–6</strong></td><td>5–7 bugów, mix krytycznych + średnich</td></tr>
+              <tr><td><strong>7–8</strong></td><td>8–10, cross-entity + kalkulacje</td></tr>
+              <tr><td><strong>9–10</strong></td><td>11–12, pełna kategoryzacja</td></tr>
+            </tbody>
+          </table>
+
+          <h4>5.3 Raportowanie bugów (0–10 pkt)</h4>
+          <table>
+            <tbody>
+              <tr><td><strong>0–3</strong></td><td>„Coś nie działa" — brak szczegółów</td></tr>
+              <tr><td><strong>4–6</strong></td><td>Kroki reprodukcji, ale brak expected/actual</td></tr>
+              <tr><td><strong>7–8</strong></td><td>Pełny raport: steps, expected, actual, severity</td></tr>
+              <tr><td><strong>9–10</strong></td><td>+ root cause, edge cases, impact biznesowy</td></tr>
+            </tbody>
+          </table>
+
+          <h4>5.4 Narzędzia i techniki (0–5 pkt)</h4>
+          <table>
+            <tbody>
+              <tr><td><strong>0–1</strong></td><td>Tylko REST Client bez modyfikacji</td></tr>
+              <tr><td><strong>2–3</strong></td><td>Modyfikuje requesty, Swagger "Try it out"</td></tr>
+              <tr><td><strong>4–5</strong></td><td>+ Postman/curl, scripting, walidacja kalkulacji</td></tr>
+            </tbody>
+          </table>
+
+          <h4>5.5 Komunikacja (0–5 pkt)</h4>
+          <table>
+            <tbody>
+              <tr><td><strong>0–2</strong></td><td>Pracuje w ciszy</td></tr>
+              <tr><td><strong>3–4</strong></td><td>Opisuje co robi i dlaczego</td></tr>
+              <tr><td><strong>5</strong></td><td>Proaktywnie pyta, priorytetyzuje, argumentuje severity</td></tr>
+            </tbody>
+          </table>
+
+          <h3>6. Arkusz punktacji</h3>
+          <table class="scorecard">
+            <thead><tr><th>Kategoria</th><th>Max</th><th>Punkty</th></tr></thead>
+            <tbody>
+              <tr><td>Podejście do testowania</td><td>10</td><td class="score-cell"></td></tr>
+              <tr><td>Znalezione bugi</td><td>10</td><td class="score-cell"></td></tr>
+              <tr><td>Raportowanie bugów</td><td>10</td><td class="score-cell"></td></tr>
+              <tr><td>Narzędzia i techniki</td><td>5</td><td class="score-cell"></td></tr>
+              <tr><td>Komunikacja</td><td>5</td><td class="score-cell"></td></tr>
+              <tr><td><strong>SUMA</strong></td><td><strong>40</strong></td><td class="score-cell"></td></tr>
+            </tbody>
+          </table>
+
+          <table>
+            <tbody>
+              <tr><td><strong>0–15</strong></td><td>❌ Nie spełnia wymagań</td></tr>
+              <tr><td><strong>16–24</strong></td><td>⚠ Poniżej oczekiwań</td></tr>
+              <tr><td><strong>25–32</strong></td><td>✅ Spełnia oczekiwania (Senior QA)</td></tr>
+              <tr><td><strong>33–40</strong></td><td>🌟 Powyżej oczekiwań</td></tr>
+            </tbody>
+          </table>
+
+          <h3>Checklist bugów</h3>
+          <div class="checklist">
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-01</span> 🔴 Duplikaty miejsc</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-02</span> 🔴 DELETE lotu z rezerwacjami</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-03</span> 🔴 Cancel nie zwalnia miejsc</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-04</span> 🔴 Pusta passengers[]</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-05</span> 🟠 Ujemna kwota podatku</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-06</span> 🟠 Discount &gt; 100%</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-07</span> 🟠 EUR→GBP kurs = 1.0</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-08</span> 🟠 totalAmount ignoruje fees</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-09</span> 🟠 POST → 200 zamiast 201</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-10</span> 🟡 Case-sensitive search</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-11</span> 🟡 Puste body → 500</label>
+            <label class="check-item"><input type="checkbox" /> <span class="bug-id">BUG-12</span> 🟡 null payment → 500</label>
+          </div>
+          <p style="margin-top:12px; font-size:13px;"><strong>Znalezione: ___ / 12</strong> (Critical: ___/4, Major: ___/5, Minor: ___/3)</p>
+
+          <h3>7. Lokalizacja bugów w kodzie</h3>
+          <table class="bugs-table">
+            <thead><tr><th>Bug</th><th>Plik</th><th>Szczegóły</th></tr></thead>
+            <tbody>
+              <tr><td class="bug-id">BUG-01</td><td><code>BookingService.java</code></td><td>Brak walidacji unikalności seatNumber</td></tr>
+              <tr><td class="bug-id">BUG-02</td><td><code>FlightService.java</code></td><td>deleteFlight() nie sprawdza bookings</td></tr>
+              <tr><td class="bug-id">BUG-03</td><td><code>BookingService.java</code></td><td>CANCELLED nie modyfikuje availableSeats</td></tr>
+              <tr><td class="bug-id">BUG-04</td><td><code>BookingService.java</code></td><td>Brak if (passengers.isEmpty())</td></tr>
+              <tr><td class="bug-id">BUG-05</td><td><code>FlightService.java</code></td><td>Brak walidacji tax.amount ≥ 0</td></tr>
+              <tr><td class="bug-id">BUG-06</td><td><code>FlightService.java</code></td><td>Brak walidacji discount.percentage 0–100</td></tr>
+              <tr><td class="bug-id">BUG-07</td><td><code>PricingService.java</code></td><td>EUR_RATES: GBP → 1.0 zamiast 0.8614</td></tr>
+              <tr><td class="bug-id">BUG-08</td><td><code>FlightService.java</code></td><td>calculateTotalAmount() pomija fees[]</td></tr>
+              <tr><td class="bug-id">BUG-09</td><td><code>FlightController / BookingController</code></td><td>ResponseEntity.ok() zamiast .status(CREATED)</td></tr>
+              <tr><td class="bug-id">BUG-10</td><td><code>FlightRepository.java</code></td><td>JPQL LIKE bez LOWER()</td></tr>
+              <tr><td class="bug-id">BUG-11</td><td><code>BookingService + GlobalExceptionHandler</code></td><td>NPE na getPayment() gdy body={}</td></tr>
+              <tr><td class="bug-id">BUG-12</td><td><code>BookingService + GlobalExceptionHandler</code></td><td>NPE na getPayment() gdy payment=null</td></tr>
+            </tbody>
+          </table>
+
+          <p style="text-align:center; margin-top:24px; font-size:12px; color:var(--text-muted);">Dokument poufny — tylko dla zespołu rekrutacyjnego</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
