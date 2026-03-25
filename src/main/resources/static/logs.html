@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyBook API — Logi</title>
+  <style>
+    /* --- Catppuccin Mocha tokens (matching main app) --- */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary:   #1e1e2e;
+      --bg-secondary: #181825;
+      --bg-surface:   #252537;
+      --bg-hover:     #313145;
+      --bg-active:    #3b3b55;
+      --text-primary: #cdd6f4;
+      --text-secondary:#a6adc8;
+      --text-muted:   #6c7086;
+      --accent:       #89b4fa;
+      --accent-hover: #74c7ec;
+      --border:       #45475a;
+      --success:      #a6e3a1;
+      --warning:      #f9e2af;
+      --error:        #f38ba8;
+      --info:         #89dceb;
+      --font-mono:    'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+      --font-sans:    'Inter', 'Segoe UI', system-ui, sans-serif;
+      --radius:       6px;
+      --radius-lg:    10px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    body { display: flex; flex-direction: column; }
+
+    /* --- Topbar --- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .topbar-brand {
+      font-size: 16px; font-weight: 700;
+      color: var(--accent); letter-spacing: 0.5px;
+    }
+    .topbar-brand a { color: inherit; text-decoration: none; }
+    .topbar-brand a:hover { text-decoration: underline; }
+    .topbar-links { display: flex; gap: 12px; align-items: center; }
+    .topbar-links a, .topbar-btn {
+      color: var(--text-secondary); text-decoration: none;
+      font-size: 13px; transition: color 0.2s;
+      background: none; border: none; cursor: pointer;
+      font-family: var(--font-sans);
+    }
+    .topbar-links a:hover, .topbar-btn:hover { color: var(--accent); }
+
+    /* --- Toolbar --- */
+    .toolbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .toolbar label { color: var(--text-secondary); font-size: 13px; }
+    .toolbar select, .toolbar input[type="text"] {
+      background: var(--bg-surface); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 5px 10px; font-size: 13px; font-family: var(--font-mono);
+    }
+    .toolbar select:focus, .toolbar input[type="text"]:focus {
+      outline: none; border-color: var(--accent);
+    }
+    .toolbar .spacer { flex: 1; }
+    .btn {
+      padding: 5px 14px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--bg-surface);
+      color: var(--text-primary); font-size: 13px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-danger { border-color: var(--error); color: var(--error); }
+    .btn-danger:hover { background: rgba(243,139,168,0.1); }
+    .btn-accent { border-color: var(--accent); color: var(--accent); }
+
+    .refresh-indicator {
+      font-size: 12px; color: var(--text-muted);
+    }
+    .refresh-indicator.on { color: var(--success); }
+
+    /* --- Log list --- */
+    .log-container {
+      flex: 1; overflow-y: auto; padding: 0;
+    }
+    .log-empty {
+      text-align: center; color: var(--text-muted);
+      padding: 60px; font-size: 15px;
+    }
+
+    .log-entry {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .log-entry:hover { background: var(--bg-hover); }
+
+    .log-summary {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 20px; cursor: pointer; user-select: none;
+    }
+    .log-summary:hover { background: var(--bg-hover); }
+
+    .log-time {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--text-muted); min-width: 170px;
+    }
+    .log-method {
+      font-family: var(--font-mono); font-size: 12px;
+      font-weight: 700; min-width: 60px; text-align: center;
+      padding: 2px 8px; border-radius: 3px;
+    }
+    .method-GET    { color: var(--success); background: rgba(166,227,161,0.1); }
+    .method-POST   { color: var(--warning); background: rgba(249,226,175,0.1); }
+    .method-PUT    { color: var(--info);    background: rgba(137,220,235,0.1); }
+    .method-PATCH  { color: #cba6f7;       background: rgba(203,166,247,0.1); }
+    .method-DELETE { color: var(--error);   background: rgba(243,139,168,0.1); }
+
+    .log-url {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--text-primary); flex: 1;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .log-status {
+      font-family: var(--font-mono); font-size: 12px;
+      font-weight: 700; min-width: 36px; text-align: center;
+      padding: 2px 8px; border-radius: 3px;
+    }
+    .status-2xx { color: var(--success); background: rgba(166,227,161,0.1); }
+    .status-4xx { color: var(--warning); background: rgba(249,226,175,0.1); }
+    .status-5xx { color: var(--error);   background: rgba(243,139,168,0.1); }
+
+    .log-duration {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--text-muted); min-width: 60px; text-align: right;
+    }
+
+    .log-toggle {
+      font-size: 11px; color: var(--text-muted); min-width: 16px;
+      transition: transform 0.2s;
+    }
+    .log-entry.open .log-toggle { transform: rotate(90deg); }
+
+    /* --- Expanded detail --- */
+    .log-detail {
+      display: none; padding: 0 20px 12px 20px;
+    }
+    .log-entry.open .log-detail { display: block; }
+
+    .detail-section {
+      margin-bottom: 10px;
+    }
+    .detail-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .detail-body {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 400px;
+      overflow-y: auto;
+      color: var(--text-primary);
+    }
+    .detail-body.empty {
+      color: var(--text-muted); font-style: italic;
+    }
+
+    .detail-row {
+      display: flex; gap: 16px;
+    }
+    .detail-row .detail-section { flex: 1; min-width: 0; }
+
+    /* --- Count badge --- */
+    .count-badge {
+      font-size: 12px; color: var(--text-muted);
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1px 10px;
+    }
+
+    /* --- Scrollbar --- */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+    /* --- Footer status --- */
+    .status-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 20px;
+      background: var(--bg-secondary); border-top: 1px solid var(--border);
+      font-size: 12px; color: var(--text-muted);
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand"><a href="/" title="REST Client">✈ SkyBook API</a> — Logi</div>
+    <div class="topbar-links">
+      <a href="/" title="REST Client">🌐 REST Client</a>
+      <a href="/swagger-ui.html" target="_blank" title="Swagger UI">📄 Swagger</a>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <label>Method:</label>
+    <select id="filterMethod" onchange="renderLogs()">
+      <option value="">All</option>
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+      <option value="PUT">PUT</option>
+      <option value="PATCH">PATCH</option>
+      <option value="DELETE">DELETE</option>
+    </select>
+
+    <label>Status:</label>
+    <select id="filterStatus" onchange="renderLogs()">
+      <option value="">All</option>
+      <option value="2xx">2xx Success</option>
+      <option value="4xx">4xx Client Error</option>
+      <option value="5xx">5xx Server Error</option>
+    </select>
+
+    <label>URL:</label>
+    <input type="text" id="filterUrl" placeholder="filter..." oninput="renderLogs()" style="width:200px;" />
+
+    <div class="spacer"></div>
+
+    <span class="count-badge" id="countBadge">0 entries</span>
+
+    <button class="btn btn-accent" onclick="fetchLogs()" title="Odśwież">↻ Odśwież</button>
+
+    <button class="btn" id="autoRefreshBtn" onclick="toggleAutoRefresh()" title="Auto-refresh">
+      ⏱ Auto: OFF
+    </button>
+
+    <button class="btn btn-danger" onclick="clearLogs()" title="Wyczyść logi">🗑 Wyczyść</button>
+  </div>
+
+  <div class="log-container" id="logContainer">
+    <div class="log-empty" id="emptyState">Brak logów — wyślij request z REST Clienta</div>
+  </div>
+
+  <footer class="status-bar">
+    <span id="statusText">Ostatnie odświeżenie: —</span>
+    <span>Max 500 wpisów w pamięci</span>
+  </footer>
+
+<script>
+  let logs = [];
+  let autoRefreshInterval = null;
+
+  // --- Fetch logs from API ---
+  async function fetchLogs() {
+    try {
+      const res = await fetch('/api/v1/logs');
+      logs = await res.json();
+      renderLogs();
+      document.getElementById('statusText').textContent =
+        'Ostatnie odświeżenie: ' + new Date().toLocaleTimeString('pl-PL');
+    } catch (e) {
+      document.getElementById('statusText').textContent = 'Błąd połączenia z API';
+    }
+  }
+
+  // --- Clear logs ---
+  async function clearLogs() {
+    if (!confirm('Wyczyścić wszystkie logi?')) return;
+    await fetch('/api/v1/logs', { method: 'DELETE' });
+    fetchLogs();
+  }
+
+  // --- Auto-refresh ---
+  function toggleAutoRefresh() {
+    const btn = document.getElementById('autoRefreshBtn');
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+      btn.textContent = '⏱ Auto: OFF';
+      btn.classList.remove('btn-accent');
+    } else {
+      autoRefreshInterval = setInterval(fetchLogs, 2000);
+      btn.textContent = '⏱ Auto: ON (2s)';
+      btn.classList.add('btn-accent');
+    }
+  }
+
+  // --- Render logs with filters ---
+  function renderLogs() {
+    const methodFilter = document.getElementById('filterMethod').value;
+    const statusFilter = document.getElementById('filterStatus').value;
+    const urlFilter = document.getElementById('filterUrl').value.toLowerCase();
+
+    let filtered = logs;
+    if (methodFilter) filtered = filtered.filter(l => l.method === methodFilter);
+    if (statusFilter) {
+      const prefix = statusFilter.charAt(0);
+      filtered = filtered.filter(l => String(l.status).charAt(0) === prefix);
+    }
+    if (urlFilter) filtered = filtered.filter(l => l.url.toLowerCase().includes(urlFilter));
+
+    const container = document.getElementById('logContainer');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('countBadge').textContent = filtered.length + ' / ' + logs.length + ' entries';
+
+    if (filtered.length === 0) {
+      container.innerHTML = '';
+      container.appendChild(createEmpty(logs.length === 0
+        ? 'Brak logów — wyślij request z REST Clienta'
+        : 'Brak wyników dla aktywnych filtrów'));
+      return;
+    }
+
+    let html = '';
+    for (const log of filtered) {
+      const methodClass = 'method-' + log.method;
+      const statusClass = getStatusClass(log.status);
+      const hasRqBody = log.requestBody && log.requestBody.trim();
+      const hasRsBody = log.responseBody && log.responseBody.trim();
+
+      html += `
+        <div class="log-entry" onclick="toggleDetail(this)">
+          <div class="log-summary">
+            <span class="log-toggle">▸</span>
+            <span class="log-time">${log.timestamp}</span>
+            <span class="log-method ${methodClass}">${log.method}</span>
+            <span class="log-url" title="${escHtml(log.url)}">${escHtml(log.url)}</span>
+            <span class="log-status ${statusClass}">${log.status}</span>
+            <span class="log-duration">${log.durationMs} ms</span>
+          </div>
+          <div class="log-detail">
+            <div class="detail-row">
+              <div class="detail-section">
+                <div class="detail-label">Request Body</div>
+                <div class="detail-body ${hasRqBody ? '' : 'empty'}">${hasRqBody ? formatJson(log.requestBody) : '(empty)'}</div>
+              </div>
+              <div class="detail-section">
+                <div class="detail-label">Response Body</div>
+                <div class="detail-body ${hasRsBody ? '' : 'empty'}">${hasRsBody ? formatJson(log.responseBody) : '(empty)'}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function toggleDetail(el) {
+    el.classList.toggle('open');
+  }
+
+  function getStatusClass(status) {
+    if (status >= 200 && status < 300) return 'status-2xx';
+    if (status >= 400 && status < 500) return 'status-4xx';
+    if (status >= 500) return 'status-5xx';
+    return '';
+  }
+
+  function formatJson(str) {
+    try {
+      const obj = JSON.parse(str);
+      return escHtml(JSON.stringify(obj, null, 2));
+    } catch {
+      return escHtml(str);
+    }
+  }
+
+  function escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function createEmpty(msg) {
+    const div = document.createElement('div');
+    div.className = 'log-empty';
+    div.textContent = msg;
+    return div;
+  }
+
+  // --- Initial load ---
+  fetchLogs();
+</script>
+</body>
+</html>
