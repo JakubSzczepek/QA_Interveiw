@@ -5,6 +5,7 @@ import com.recruitment.skybook.dto.flight.FlightResponse;
 import com.recruitment.skybook.service.FlightService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class FlightController {
     // BUG-09: Returns 200 OK instead of 201 Created
     @PostMapping
     @Operation(summary = "Create a new flight", description = "Creates flight with segments, pricing. flightNumber must be unique (BR-01). Segments required (BR-02). Returns the created flight.")
-    public ResponseEntity<FlightResponse> createFlight(@RequestBody FlightRequest request) {
+    public ResponseEntity<FlightResponse> createFlight(@Valid @RequestBody FlightRequest request) {
         FlightResponse response = flightService.createFlight(request);
         // BUG-09: Should be ResponseEntity.status(HttpStatus.CREATED).body(response)
         return ResponseEntity.ok(response);
@@ -43,7 +44,7 @@ public class FlightController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update a flight", description = "Full update of flight data. Validates all business rules.")
-    public ResponseEntity<FlightResponse> updateFlight(@PathVariable Long id, @RequestBody FlightRequest request) {
+    public ResponseEntity<FlightResponse> updateFlight(@PathVariable Long id, @Valid @RequestBody FlightRequest request) {
         return ResponseEntity.ok(flightService.updateFlight(id, request));
     }
 

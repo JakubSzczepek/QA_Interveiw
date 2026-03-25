@@ -6,6 +6,7 @@ import com.recruitment.skybook.dto.booking.BookingStatusRequest;
 import com.recruitment.skybook.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class BookingController {
     @Operation(summary = "Update booking status", description = "Allowed transitions: PENDING→CONFIRMED, PENDING→CANCELLED, CONFIRMED→CANCELLED. Cannot revert CANCELLED (BR-15).")
     public ResponseEntity<BookingResponse> updateBookingStatus(
             @PathVariable Long id,
-            @RequestBody BookingStatusRequest request) {
+            @Valid @RequestBody BookingStatusRequest request) {
         return ResponseEntity.ok(bookingService.updateBookingStatus(id, request));
     }
 }
