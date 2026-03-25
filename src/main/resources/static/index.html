@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkyBook API — REST Client</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-brand">✈ SkyBook API — REST Client</div>
+    <div class="topbar-links">
+      <a href="/swagger-ui.html" target="_blank" title="Swagger UI">📄 Swagger</a>
+      <a href="/h2-console" target="_blank" title="H2 Database Console">🗄 H2 Console</a>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-group" data-group="flights">
+        <div class="sidebar-group-title" onclick="toggleGroup(this)">📂 Flights <span class="arrow">▾</span></div>
+        <ul class="sidebar-items">
+          <li data-endpoint="getAllFlights" class="active">GET All Flights</li>
+          <li data-endpoint="getFlightById">GET Flight by ID</li>
+          <li data-endpoint="createFlight">POST Create Flight</li>
+          <li data-endpoint="updateFlight">PUT Update Flight</li>
+          <li data-endpoint="deleteFlight">DELETE Flight</li>
+          <li data-endpoint="searchFlights">GET Search Flights</li>
+        </ul>
+      </div>
+      <div class="sidebar-group" data-group="bookings">
+        <div class="sidebar-group-title" onclick="toggleGroup(this)">📂 Bookings <span class="arrow">▾</span></div>
+        <ul class="sidebar-items">
+          <li data-endpoint="createBooking">POST Create Booking</li>
+          <li data-endpoint="getBookingById">GET Booking by ID</li>
+          <li data-endpoint="patchBookingStatus">PATCH Booking Status</li>
+        </ul>
+      </div>
+      <div class="sidebar-group" data-group="airports">
+        <div class="sidebar-group-title" onclick="toggleGroup(this)">📂 Airports <span class="arrow">▾</span></div>
+        <ul class="sidebar-items">
+          <li data-endpoint="getAllAirports">GET All Airports</li>
+        </ul>
+      </div>
+      <div class="sidebar-group" data-group="pricing">
+        <div class="sidebar-group-title" onclick="toggleGroup(this)">📂 Pricing <span class="arrow">▾</span></div>
+        <ul class="sidebar-items">
+          <li data-endpoint="convertCurrency">GET Currency Convert</li>
+          <li data-endpoint="getExchangeRates">GET Exchange Rates</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <!-- Request panel -->
+      <section class="request-panel">
+        <div class="request-bar">
+          <select id="methodSelect" class="method-select">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+          <input type="text" id="urlInput" class="url-input" placeholder="/api/v1/..." />
+          <button id="sendBtn" class="send-btn" onclick="sendRequest()">Send ▶</button>
+        </div>
+
+        <div class="headers-section">
+          <label>Headers:</label>
+          <div class="header-row">
+            <span class="header-key">Content-Type:</span>
+            <span class="header-value">application/json</span>
+          </div>
+        </div>
+
+        <div class="body-section" id="bodySection">
+          <label>Body:</label>
+          <textarea id="bodyEditor" class="body-editor" spellcheck="false" placeholder="{ }"></textarea>
+          <div class="editor-actions">
+            <button class="format-btn" onclick="formatBody()" title="Format JSON">🔧 Format</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Response panel -->
+      <section class="response-panel" id="responsePanel">
+        <div class="response-header">
+          <span class="response-label">Response:</span>
+          <span id="responseStatus" class="response-status"></span>
+          <span id="responseTime" class="response-time"></span>
+        </div>
+        <pre id="responseBody" class="response-body"><span class="placeholder">Click "Send" to see response...</span></pre>
+      </section>
+    </main>
+  </div>
+
+  <!-- History bar -->
+  <footer class="history-bar" id="historyBar">
+    <span class="history-label">📋 History:</span>
+    <div class="history-items" id="historyItems">
+      <span class="history-empty">No requests yet</span>
+    </div>
+    <button class="history-clear" onclick="clearHistory()" title="Clear history">✕</button>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
