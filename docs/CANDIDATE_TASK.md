@@ -21,7 +21,6 @@
 |-----------|-----|------|
 | **REST Client** | `/` (strona główna) | Wbudowany klient REST z gotowymi przykładowymi requestami — możesz je modyfikować i wysyłać |
 | **Swagger UI** | `/swagger-ui.html` | Interaktywna dokumentacja API |
-| **H2 Console** | `/h2-console` | Konsola bazy danych (JDBC URL: `jdbc:h2:mem:skybookdb`, user: `sa`, bez hasła) |
 
 > 💡 **Wskazówka:** REST Client na stronie głównej ma 12 gotowych requestów — możesz je wysyłać od razu lub modyfikować. Nie musisz pisać JSON od zera.
 
